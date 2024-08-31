@@ -1,6 +1,8 @@
 package completer
 
 import (
+	"context"
+	"github.com/itsabgr/fak"
 	"sync"
 )
 
@@ -30,4 +32,14 @@ func (completer *completer[T]) Wait() T {
 	defer completer.mutex.Unlock()
 	result := completer.result
 	return result
+}
+
+func (completer *completer[T]) WaitCtx(ctx context.Context) (t T, err error) {
+	if err = fak.LockContext(ctx, &completer.mutex); err != nil {
+		return t, err
+	}
+
+	defer completer.mutex.Unlock()
+	result := completer.result
+	return result, nil
 }
